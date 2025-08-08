@@ -1,7 +1,10 @@
-'use server';
+"use server";
 
-import { openai } from './openAi';
-import type { ChatCompletionMessageParam, ChatCompletionMessageToolCall } from 'openai/resources/chat/completions';
+import { openai } from "./openAi";
+import type {
+  ChatCompletionMessageParam,
+  ChatCompletionMessageToolCall,
+} from "openai/resources/chat/completions";
 import {
   listProducts,
   listUsers,
@@ -11,23 +14,23 @@ import {
   searchUsersByName,
   updateUserRecord as updateUser,
   snapshot as dbSnapshot,
-} from './mockDb';
+} from "./mockDb";
 
 export interface ToolCall {
   id: string;
-  type: 'function';
+  type: "function";
   function?: {
     name: string;
     arguments: string;
   };
   // Optional fields added at runtime to surface tool execution to the UI
-  status?: 'ok' | 'error';
+  status?: "ok" | "error";
   result?: unknown;
   durationMs?: number;
 }
 
 export interface Message {
-  role: 'user' | 'assistant' | 'system';
+  role: "user" | "assistant" | "system";
   content: string;
   tool_calls?: ToolCall[];
 }
@@ -35,110 +38,114 @@ export interface Message {
 // Define the tools available to the AI agent
 const tools = [
   {
-    type: 'function' as const,
+    type: "function" as const,
     function: {
-      name: 'search_product',
-      description: 'Search for a product by name in the product database',
+      name: "search_product",
+      description: "Search for a product by name in the product database",
       parameters: {
-        type: 'object',
+        type: "object",
         properties: {
           product_name: {
-            type: 'string',
-            description: 'The name of the product to search for',
+            type: "string",
+            description: "The name of the product to search for",
+          },
+          product_price: {
+            type: "number",
+            description: "The price of the product to search for",
           },
         },
-        required: ['product_name'],
+        required: [],
       },
     },
   },
   {
-    type: 'function' as const,
+    type: "function" as const,
     function: {
-      name: 'search_user',
-      description: 'Search for a user by their user ID',
+      name: "search_user",
+      description: "Search for a user by their user ID",
       parameters: {
-        type: 'object',
+        type: "object",
         properties: {
           user_id: {
-            type: 'string',
-            description: 'The unique identifier of the user to search for',
+            type: "string",
+            description: "The unique identifier of the user to search for",
           },
         },
-        required: ['user_id'],
+        required: ["user_id"],
       },
     },
   },
   {
-    type: 'function' as const,
+    type: "function" as const,
     function: {
-      name: 'search_users_by_name',
-      description: 'Search for users whose name contains the given substring',
+      name: "search_users_by_name",
+      description: "Search for users whose name contains the given substring",
       parameters: {
-        type: 'object',
+        type: "object",
         properties: {
           name: {
-            type: 'string',
-            description: 'Name or partial name to search for',
+            type: "string",
+            description: "Name or partial name to search for",
           },
         },
-        required: ['name'],
+        required: ["name"],
       },
     },
   },
   {
-    type: 'function' as const,
+    type: "function" as const,
     function: {
-      name: 'update_user_record',
-      description: 'Update a specific field in a user record',
+      name: "update_user_record",
+      description: "Update a specific field in a user record",
       parameters: {
-        type: 'object',
+        type: "object",
         properties: {
           user_id: {
-            type: 'string',
-            description: 'The unique identifier of the user to update',
+            type: "string",
+            description: "The unique identifier of the user to update",
           },
           field: {
-            type: 'string',
-            description: 'The field name to update (e.g., email, name, status)',
+            type: "string",
+            description: "The field name to update (e.g., email, name, status)",
           },
           value: {
-            type: 'string',
-            description: 'The new value to set for the specified field',
+            type: "string",
+            description: "The new value to set for the specified field",
           },
         },
-        required: ['user_id', 'field', 'value'],
+        required: ["user_id", "field", "value"],
       },
     },
   },
   {
-    type: 'function' as const,
+    type: "function" as const,
     function: {
-      name: 'list_users',
-      description: 'List all users in the database',
+      name: "list_users",
+      description: "List all users in the database",
       parameters: {
-        type: 'object',
+        type: "object",
         properties: {},
       },
     },
   },
   {
-    type: 'function' as const,
+    type: "function" as const,
     function: {
-      name: 'list_products',
-      description: 'List all products in the database',
+      name: "list_products",
+      description: "List all products in the database",
       parameters: {
-        type: 'object',
+        type: "object",
         properties: {},
       },
     },
   },
   {
-    type: 'function' as const,
+    type: "function" as const,
     function: {
-      name: 'reset_db',
-      description: 'Reset the mock database to its initial state',
+      name: "reset_db",
+      description: "Reset the mock database to its initial state",
       parameters: {
-        type: 'object',
+        type: "object",
         properties: {},
       },
     },
@@ -166,7 +173,7 @@ Available tools:
 Always respond with a tool call that best matches the user's intent.`;
 
 export async function callOpenAI(messages: Message[]): Promise<{
-  role: 'assistant';
+  role: "assistant";
   content: string | null;
   tool_calls: ToolCall[];
   db?: ReturnType<typeof dbSnapshot>;
@@ -174,100 +181,108 @@ export async function callOpenAI(messages: Message[]): Promise<{
   try {
     // Convert our Message format to OpenAI's format
     const messagesWithSystem: ChatCompletionMessageParam[] = [
-      { role: 'system', content: systemPrompt },
-      ...messages.map(msg => ({
-        role: msg.role,
-        content: msg.content,
-        ...(msg.tool_calls && { tool_calls: msg.tool_calls as ChatCompletionMessageToolCall[] }),
-      } as ChatCompletionMessageParam)),
+      { role: "system", content: systemPrompt },
+      ...messages.map(
+        (msg) =>
+          ({
+            role: msg.role,
+            content: msg.content,
+            ...(msg.tool_calls && {
+              tool_calls: msg.tool_calls as ChatCompletionMessageToolCall[],
+            }),
+          }) as ChatCompletionMessageParam,
+      ),
     ];
 
     const response = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
+      model: "gpt-4o-mini",
       messages: messagesWithSystem,
       tools: tools,
-      tool_choice: 'required', // Force the model to use a tool
+      tool_choice: "required", // Force the model to use a tool
       temperature: 0.1,
     });
 
     const assistantMessage = response.choices[0]?.message;
 
     if (!assistantMessage) {
-      throw new Error('No response from OpenAI');
+      throw new Error("No response from OpenAI");
     }
 
     // Execute tool calls (if any) for a concrete demo and enrich with results
     const executedToolCalls: ToolCall[] = await Promise.all(
-      (assistantMessage.tool_calls || []).map(async tc => {
+      (assistantMessage.tool_calls || []).map(async (tc) => {
         const start = Date.now();
-        let status: 'ok' | 'error' = 'ok';
+        let status: "ok" | "error" = "ok";
         let result: unknown = null;
         try {
-          if (tc.type === 'function') {
-            const name = tc.function?.name || '';
+          if (tc.type === "function") {
+            const name = tc.function?.name || "";
             const args = safeParse(tc.function?.arguments);
             switch (name) {
-              case 'search_product':
-                result = searchProduct(getString(args, 'product_name'));
+              case "search_product":
+                result = searchProduct(getString(args, "product_name"));
                 break;
-              case 'search_user':
-                result = findUser(getString(args, 'user_id'));
+              case "search_user":
+                result = findUser(getString(args, "user_id"));
                 break;
-              case 'search_users_by_name':
-                result = searchUsersByName(getString(args, 'name'));
+              case "search_users_by_name":
+                result = searchUsersByName(getString(args, "name"));
                 break;
-              case 'update_user_record':
+              case "update_user_record":
                 {
-                  const userId = getString(args, 'user_id');
-                  const fieldRaw = getString(args, 'field');
-                  const value = getString(args, 'value');
+                  const userId = getString(args, "user_id");
+                  const fieldRaw = getString(args, "field");
+                  const value = getString(args, "value");
                   const field = toUpdatableField(fieldRaw);
                   if (!field) {
-                    throw new Error('Unsupported field. Allowed: name, email, status');
+                    throw new Error(
+                      "Unsupported field. Allowed: name, email, status",
+                    );
                   }
                   result = updateUser(userId, field, value);
                 }
                 break;
-              case 'list_users':
+              case "list_users":
                 result = listUsers();
                 break;
-              case 'list_products':
+              case "list_products":
                 result = listProducts();
                 break;
-              case 'reset_db':
+              case "reset_db":
                 result = resetDb();
                 break;
               default:
-                status = 'error';
-                result = { error: 'Unknown tool' };
+                status = "error";
+                result = { error: "Unknown tool" };
             }
           }
         } catch (e) {
-          status = 'error';
-          const message = e instanceof Error ? e.message : 'Tool execution error';
+          status = "error";
+          const message =
+            e instanceof Error ? e.message : "Tool execution error";
           result = { error: message };
         }
         const durationMs = Date.now() - start;
         return {
           id: tc.id,
-          type: 'function' as const,
-          function: tc.type === 'function' ? tc.function : undefined,
+          type: "function" as const,
+          function: tc.type === "function" ? tc.function : undefined,
           status,
           result,
           durationMs,
         } as ToolCall;
-      })
+      }),
     );
 
     return {
-      role: 'assistant',
-      content: assistantMessage.content || '',
+      role: "assistant",
+      content: assistantMessage.content || "",
       tool_calls: executedToolCalls,
       db: dbSnapshot(),
     };
   } catch (error) {
-    console.error('Error calling OpenAI:', error);
-    throw new Error('Failed to get response from AI assistant');
+    console.error("Error calling OpenAI:", error);
+    throw new Error("Failed to get response from AI assistant");
   }
 }
 
@@ -281,13 +296,15 @@ function safeParse(s?: string): Record<string, unknown> {
 
 function getString(obj: Record<string, unknown>, key: string): string {
   const value = obj?.[key];
-  if (typeof value === 'string') return value;
-  if (value == null) return '';
+  if (typeof value === "string") return value;
+  if (value == null) return "";
   return String(value);
 }
 
-const updatableFields = ['name', 'email', 'status'] as const;
+const updatableFields = ["name", "email", "status"] as const;
 type UpdatableField = (typeof updatableFields)[number];
 function toUpdatableField(field: string): UpdatableField | null {
-  return (updatableFields as readonly string[]).includes(field) ? (field as UpdatableField) : null;
+  return (updatableFields as readonly string[]).includes(field)
+    ? (field as UpdatableField)
+    : null;
 }

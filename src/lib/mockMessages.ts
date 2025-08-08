@@ -1,6 +1,6 @@
 export interface ChatMessage {
   message: string;
-  sender: 'user' | 'assistant';
+  sender: "user" | "assistant";
   timestamp?: Date;
 }
 

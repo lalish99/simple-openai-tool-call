@@ -1,26 +1,29 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { Box, TextField, IconButton, Paper } from '@mui/material';
-import { Send } from '@mui/icons-material';
+import React, { useState } from "react";
+import { Box, TextField, IconButton, Paper } from "@mui/material";
+import { Send } from "@mui/icons-material";
 
 interface ChatInputProps {
   onSendMessage: (message: string) => void;
   disabled?: boolean;
 }
 
-export default function ChatInput({ onSendMessage, disabled = false }: ChatInputProps) {
-  const [message, setMessage] = useState('');
+export default function ChatInput({
+  onSendMessage,
+  disabled = false,
+}: ChatInputProps) {
+  const [message, setMessage] = useState("");
 
   const handleSend = () => {
     if (message.trim() && !disabled) {
       onSendMessage(message.trim());
-      setMessage('');
+      setMessage("");
     }
   };
 
   const handleKeyPress = (event: React.KeyboardEvent) => {
-    if (event.key === 'Enter' && !event.shiftKey) {
+    if (event.key === "Enter" && !event.shiftKey) {
       event.preventDefault();
       handleSend();
     }
@@ -31,12 +34,12 @@ export default function ChatInput({ onSendMessage, disabled = false }: ChatInput
       elevation={3}
       sx={{
         p: 2,
-        bgcolor: 'background.paper',
-        borderTop: '1px solid',
-        borderColor: 'divider',
+        bgcolor: "background.paper",
+        borderTop: "1px solid",
+        borderColor: "divider",
       }}
     >
-      <Box sx={{ display: 'flex', gap: 1, alignItems: 'flex-end' }}>
+      <Box sx={{ display: "flex", gap: 1, alignItems: "flex-end" }}>
         <TextField
           fullWidth
           multiline
@@ -48,7 +51,7 @@ export default function ChatInput({ onSendMessage, disabled = false }: ChatInput
           disabled={disabled}
           variant="outlined"
           sx={{
-            '& .MuiOutlinedInput-root': {
+            "& .MuiOutlinedInput-root": {
               borderRadius: 2,
             },
           }}
@@ -58,14 +61,14 @@ export default function ChatInput({ onSendMessage, disabled = false }: ChatInput
           disabled={!message.trim() || disabled}
           color="primary"
           sx={{
-            bgcolor: 'primary.main',
-            color: 'primary.contrastText',
-            '&:hover': {
-              bgcolor: 'primary.dark',
+            bgcolor: "primary.main",
+            color: "primary.contrastText",
+            "&:hover": {
+              bgcolor: "primary.dark",
             },
-            '&:disabled': {
-              bgcolor: 'action.disabled',
-              color: 'action.disabled',
+            "&:disabled": {
+              bgcolor: "action.disabled",
+              color: "action.disabled",
             },
             borderRadius: 2,
             p: 1.5,

@@ -1,37 +1,40 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect, useRef } from 'react';
-import { Box, Typography, LinearProgress, Button } from '@mui/material';
-import ChatMessage, { ChatMessageProps } from './ChatMessage';
-import ChatInput from './ChatInput';
+import React, { useState, useEffect, useRef } from "react";
+import { Box, Typography, LinearProgress, Button } from "@mui/material";
+import ChatMessage, { ChatMessageProps } from "./ChatMessage";
+import ChatInput from "./ChatInput";
 import {
   getMessages,
   addUserMessage,
   addAssistantMessage,
   getMessagesForAPI,
-  clearMessages
-} from '@/lib/localStorage';
-import { callOpenAI } from '@/lib/actions';
+  clearMessages,
+} from "@/lib/localStorage";
+import { callOpenAI } from "@/lib/actions";
 
 export default function ChatWindow() {
   const [messages, setMessages] = useState<ChatMessageProps[]>([]);
   const [isTyping, setIsTyping] = useState(false);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [db, setDb] = useState<any>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
   useEffect(() => {
     // Load messages from localStorage on component mount
     const storedMessages = getMessages();
-    setMessages(storedMessages.map(msg => ({
-      message: msg.content,
-      sender: msg.role,
-      timestamp: msg.timestamp,
-      tool_calls: msg.tool_calls,
-    })));
+    setMessages(
+      storedMessages.map((msg) => ({
+        message: msg.content,
+        sender: msg.role,
+        timestamp: msg.timestamp,
+        tool_calls: msg.tool_calls,
+      })),
+    );
   }, []);
 
   useEffect(() => {
@@ -44,12 +47,14 @@ export default function ChatWindow() {
 
       // Add user message to localStorage and state
       const updatedMessages = addUserMessage(message);
-      setMessages(updatedMessages.map(msg => ({
-        message: msg.content,
-        sender: msg.role,
-        timestamp: msg.timestamp,
-        tool_calls: msg.tool_calls,
-      })));
+      setMessages(
+        updatedMessages.map((msg) => ({
+          message: msg.content,
+          sender: msg.role,
+          timestamp: msg.timestamp,
+          tool_calls: msg.tool_calls,
+        })),
+      );
 
       // Get conversation history for API call
       const conversationHistory = getMessagesForAPI();
@@ -60,31 +65,34 @@ export default function ChatWindow() {
 
       // Add assistant response to localStorage and state
       const assistantMessages = addAssistantMessage(
-        response.content || 'I called a tool to help with your request.',
-        response.tool_calls
+        response.content || "I called a tool to help with your request.",
+        response.tool_calls,
       );
 
-      setMessages(assistantMessages.map(msg => ({
-        message: msg.content,
-        sender: msg.role,
-        timestamp: msg.timestamp,
-        tool_calls: msg.tool_calls,
-      })));
-
+      setMessages(
+        assistantMessages.map((msg) => ({
+          message: msg.content,
+          sender: msg.role,
+          timestamp: msg.timestamp,
+          tool_calls: msg.tool_calls,
+        })),
+      );
     } catch (error) {
-      console.error('Error sending message:', error);
+      console.error("Error sending message:", error);
 
       // Add error message
       const errorMessages = addAssistantMessage(
-        'Sorry, I encountered an error while processing your request. Please make sure your OpenAI API key is configured correctly.'
+        "Sorry, I encountered an error while processing your request. Please make sure your OpenAI API key is configured correctly.",
       );
 
-      setMessages(errorMessages.map(msg => ({
-        message: msg.content,
-        sender: msg.role,
-        timestamp: msg.timestamp,
-        tool_calls: msg.tool_calls,
-      })));
+      setMessages(
+        errorMessages.map((msg) => ({
+          message: msg.content,
+          sender: msg.role,
+          timestamp: msg.timestamp,
+          tool_calls: msg.tool_calls,
+        })),
+      );
     } finally {
       setIsTyping(false);
     }
@@ -95,25 +103,25 @@ export default function ChatWindow() {
     setMessages([]);
   };
 
-    return (
+  return (
     <Box
       sx={{
-        height: '100vh',
-        display: 'flex',
-        flexDirection: 'column',
-        bgcolor: 'background.default',
+        height: "100vh",
+        display: "flex",
+        flexDirection: "column",
+        bgcolor: "background.default",
       }}
     >
       {/* Header */}
       <Box
         sx={{
           p: 2,
-          bgcolor: 'background.paper',
-          borderBottom: '1px solid',
-          borderColor: 'divider',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
+          bgcolor: "background.paper",
+          borderBottom: "1px solid",
+          borderColor: "divider",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
         }}
       >
         <Box>
@@ -128,7 +136,7 @@ export default function ChatWindow() {
           variant="outlined"
           onClick={handleClearMessages}
           size="small"
-          sx={{ minWidth: 'auto' }}
+          sx={{ minWidth: "auto" }}
         >
           Clear Chat
         </Button>
@@ -138,21 +146,21 @@ export default function ChatWindow() {
       <Box
         sx={{
           flex: 1,
-          overflow: 'auto',
+          overflow: "auto",
           p: 2,
-          display: 'flex',
-          flexDirection: 'column',
+          display: "flex",
+          flexDirection: "column",
         }}
       >
         {messages.length === 0 && (
           <Box
             sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              height: '100%',
-              textAlign: 'center',
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              height: "100%",
+              textAlign: "center",
               opacity: 0.7,
             }}
           >
@@ -169,7 +177,8 @@ export default function ChatWindow() {
               • Look up a user: &quot;Search for user ID 12345&quot;
             </Typography>
             <Typography variant="body2" sx={{ mb: 0.5 }}>
-              • Update user data: &quot;Update user 12345 email to new@email.com&quot;
+              • Update user data: &quot;Update user 12345 email to
+              new@email.com&quot;
             </Typography>
           </Box>
         )}
@@ -187,20 +196,39 @@ export default function ChatWindow() {
         {isTyping && (
           <Box sx={{ mb: 2 }}>
             <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-              Assistant is analyzing your request and selecting the appropriate tool...
+              Assistant is analyzing your request and selecting the appropriate
+              tool...
             </Typography>
-            <LinearProgress sx={{ width: '300px' }} />
+            <LinearProgress sx={{ width: "300px" }} />
           </Box>
         )}
 
         {/* Simple data preview to show mock DB updates */}
         {db && (
-          <Box sx={{ mt: 2, p: 2, border: '1px solid', borderColor: 'divider', borderRadius: 1 }}>
-            <Typography variant="subtitle2" sx={{ mb: 1 }}>Data Preview</Typography>
-            <Typography variant="caption" sx={{ opacity: 0.7 }}>Users</Typography>
-            <pre style={{ fontSize: 12, whiteSpace: 'pre-wrap' }}>{JSON.stringify(db.users, null, 2)}</pre>
-            <Typography variant="caption" sx={{ opacity: 0.7 }}>Products</Typography>
-            <pre style={{ fontSize: 12, whiteSpace: 'pre-wrap' }}>{JSON.stringify(db.products, null, 2)}</pre>
+          <Box
+            sx={{
+              mt: 2,
+              p: 2,
+              border: "1px solid",
+              borderColor: "divider",
+              borderRadius: 1,
+            }}
+          >
+            <Typography variant="subtitle2" sx={{ mb: 1 }}>
+              Data Preview
+            </Typography>
+            <Typography variant="caption" sx={{ opacity: 0.7 }}>
+              Users
+            </Typography>
+            <pre style={{ fontSize: 12, whiteSpace: "pre-wrap" }}>
+              {JSON.stringify(db.users, null, 2)}
+            </pre>
+            <Typography variant="caption" sx={{ opacity: 0.7 }}>
+              Products
+            </Typography>
+            <pre style={{ fontSize: 12, whiteSpace: "pre-wrap" }}>
+              {JSON.stringify(db.products, null, 2)}
+            </pre>
           </Box>
         )}
 

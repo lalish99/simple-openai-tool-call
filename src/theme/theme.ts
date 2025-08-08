@@ -1,24 +1,24 @@
-'use client';
+"use client";
 
-import { createTheme } from '@mui/material/styles';
+import { createTheme } from "@mui/material/styles";
 
 export const theme = createTheme({
   palette: {
-    mode: 'dark',
+    mode: "dark",
     primary: {
-      main: '#1DB954', // Spotify green
+      main: "#1DB954", // Spotify green
     },
     background: {
-      default: '#121212',
-      paper: '#1e1e1e',
+      default: "#121212",
+      paper: "#1e1e1e",
     },
     text: {
-      primary: '#FFFFFF',
-      secondary: '#B3B3B3',
+      primary: "#FFFFFF",
+      secondary: "#B3B3B3",
     },
   },
   typography: {
-    fontFamily: 'Inter, Roboto, sans-serif',
+    fontFamily: "Inter, Roboto, sans-serif",
   },
   components: {
     MuiCssBaseline: {
@@ -26,14 +26,14 @@ export const theme = createTheme({
         body: {
           margin: 0,
           padding: 0,
-          height: '100vh',
-          overflow: 'hidden',
+          height: "100vh",
+          overflow: "hidden",
         },
-        '#__next': {
-          height: '100vh',
+        "#__next": {
+          height: "100vh",
         },
         html: {
-          height: '100vh',
+          height: "100vh",
         },
       },
     },
