@@ -16,6 +16,7 @@ import { callOpenAI } from '@/lib/actions';
 export default function ChatWindow() {
   const [messages, setMessages] = useState<ChatMessageProps[]>([]);
   const [isTyping, setIsTyping] = useState(false);
+  const [db, setDb] = useState<any>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -55,6 +56,7 @@ export default function ChatWindow() {
 
       // Call OpenAI API
       const response = await callOpenAI(conversationHistory);
+      if (response.db) setDb(response.db);
 
       // Add assistant response to localStorage and state
       const assistantMessages = addAssistantMessage(
@@ -188,6 +190,17 @@ export default function ChatWindow() {
               Assistant is analyzing your request and selecting the appropriate tool...
             </Typography>
             <LinearProgress sx={{ width: '300px' }} />
+          </Box>
+        )}
+
+        {/* Simple data preview to show mock DB updates */}
+        {db && (
+          <Box sx={{ mt: 2, p: 2, border: '1px solid', borderColor: 'divider', borderRadius: 1 }}>
+            <Typography variant="subtitle2" sx={{ mb: 1 }}>Data Preview</Typography>
+            <Typography variant="caption" sx={{ opacity: 0.7 }}>Users</Typography>
+            <pre style={{ fontSize: 12, whiteSpace: 'pre-wrap' }}>{JSON.stringify(db.users, null, 2)}</pre>
+            <Typography variant="caption" sx={{ opacity: 0.7 }}>Products</Typography>
+            <pre style={{ fontSize: 12, whiteSpace: 'pre-wrap' }}>{JSON.stringify(db.products, null, 2)}</pre>
           </Box>
         )}
 
